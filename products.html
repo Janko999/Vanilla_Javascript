@@ -1,0 +1,76 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="nenabaveni">
+       <br>
+    </div>
+        <br>
+    <input id = "dodadiText" type="text">
+        
+    <button id="dodadi" type="submit">ADD</button>
+    <br>
+    <div id="nabaveni">
+        <br>
+    </div>
+
+    <script>
+        let jsonContent = '';
+
+        let neNabaveni = document.getElementById('nenabaveni');
+        
+        let nabaveni = document.getElementById('nabaveni');
+        
+        
+
+        fetch('http://192.168.100.100:8081/api/v1/spisok').then((response) =>{
+            response.json().then((data)=>{
+                
+                jsonContent = data;
+                    
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        
+                        let input = document.createElement("input");
+                        
+                        input.type = "checkbox";
+                        input.checked = data[i].nabaven;
+                        
+
+                        let div = document.createElement("p");
+                        div.innerText = data[i].ime;
+                        
+                        if(data[i].nabaven !== true){
+                            neNabaveni.appendChild(input);                           
+                            neNabaveni.append(data[i].ime)
+                            input.id = data[i].id;
+                            
+                        }else{
+                            nabaveni.appendChild(input);
+                            nabaveni.append(data[i].ime);
+                            input.id = data[i].id;
+                        }
+                        
+
+                        input.addEventListener('change', e => {  
+                        // console.log(e.target.checked)
+                        if(e.target.checked){
+                            
+                            nabaveni.append(data[i].ime)                           
+                            nabaveni.append(input);
+                            
+                        }
+
+                    });
+                                            // let submitted = document.getElementById('submit').addEventListener("submit", function (e){
+            
+                        // })    
+                }   
+            })
+        })
+    </script>
+</body>
+</html>
