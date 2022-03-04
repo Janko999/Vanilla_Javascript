@@ -71,6 +71,26 @@
                 }   
             })
         })
+         const addProduct = (prod) => {
+            prod.preventDefault();
+            let product = {
+                ime: document.getElementById('addText').value,
+
+            }
+
+            jsonContent.push(product);
+            document.forms[0].reset();
+            console.log('added', { jsonContent });
+            
+
+
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn').addEventListener('click', addProduct);
+
+
+        });
     </script>
 </body>
 </html>
