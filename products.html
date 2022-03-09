@@ -1,96 +1,129 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>BLUESHIFT</title>
 </head>
+
 <body>
-    <div id="nenabaveni">
-       <br>
-    </div>
-        <br>
-    <input id = "dodadiText" type="text">
-        
-    <button id="dodadi" type="submit">ADD</button>
-    <br>
-    <div id="nabaveni">
-        <br>
+    <div>
+
+        <div class="formBox" style="padding: 10px; border: 1px solid #bfbfbf; 
+                    background-color: lightskyblue; 
+                    box-shadow: 5px 5px 2px #aaaaaa; 
+                    display: inline-block; ">
+
+            <div id="nenabaveni">
+                <h3>Products</h3>
+                <ul id="productsList">
+
+                </ul>
+            </div>
+            
+            <br>
+            <div>
+                <input id="addText" type="text" placeholder="Add Product">
+
+                <button id="btn" onclick="addProduct()">ADD PRODUCT</button>
+
+            </div>
+            <br>
+            <div>
+                <div id="nabaveni">
+            
+                </div>
+
+        </div>
+
     </div>
 
     <script>
         let jsonContent = '';
 
-        let neNabaveni = document.getElementById('nenabaveni');
-        
+        let neNabaveni = document.getElementById('nenabaveni')
+
         let nabaveni = document.getElementById('nabaveni');
-        
-        
 
-        fetch('http://192.168.100.100:8081/api/v1/spisok').then((response) =>{
-            response.json().then((data)=>{
-                
+
+
+        fetch('http://192.168.100.100:8081/api/v1/spisok').then((response) => {
+            response.json().then((data) => {
+
                 jsonContent = data;
+
+                for (let i = 0; i <= data.length - 1; i++) {
+                    //Creating checkbox
+                    let input = document.createElement("input");
+                    input.type = "checkbox";
+                    input.checked = data[i].nabaven;
+                   
                     
-                    for (let i = 0; i <= data.length - 1; i++) {
-                        
-                        let input = document.createElement("input");
-                        
-                        input.type = "checkbox";
-                        input.checked = data[i].nabaven;
-                        
+                    //Creating paragraph with json elements from API
+                    let div = document.createElement("p");
+                    
+                    div.innerText = data[i].ime;
 
-                        let div = document.createElement("p");
-                        div.innerText = data[i].ime;
+                    
+                    //Check if its ordered or not (true or false)
+                    if (data[i].nabaven !== true) {
+                        neNabaveni.appendChild(input);
+                        neNabaveni.append(data[i].ime)
+                    //Getting ID
+                        input.id = data[i].id;
                         
-                        if(data[i].nabaven !== true){
-                            neNabaveni.appendChild(input);                           
-                            neNabaveni.append(data[i].ime)
-                            input.id = data[i].id;
-                            
-                        }else{
-                            nabaveni.appendChild(input);
-                            nabaveni.append(data[i].ime);
-                            input.id = data[i].id;
-                        }
                         
+                    } else {
+                        nabaveni.appendChild(input);
+                        nabaveni.append(data[i].ime);
+                        input.id = data[i].id;
+                    }
 
-                        input.addEventListener('change', e => {  
-                        // console.log(e.target.checked)
-                        if(e.target.checked){
-                            
-                            nabaveni.append(data[i].ime)                           
+                    //If its ordered (checked), put the element in "ordered parapraph"
+                    input.addEventListener('change', e => {
+                        if (e.target.checked) {
+                            nabaveni.append(data[i].ime)
                             nabaveni.append(input);
                             
                         }
 
+
                     });
-                                            // let submitted = document.getElementById('submit').addEventListener("submit", function (e){
-            
-                        // })    
-                }   
+                    
+
+                }
+
+                // for (let i = 0; i < input.length; i++){
+                //     let newList = document.createElement("li");
+                //     let productList = newList[i];
+
+                //     let newContent = document.createTextNode(productList);
+                //     newList.appendChild(newContent);
+
+                //     let displayContent = document.getElementById("productsList");
+                //     displayContent.appendChild(newList);
+                // }
             })
         })
-         const addProduct = (prod) => {
-            prod.preventDefault();
-            let product = {
-                ime: document.getElementById('addText').value,
 
+        //Function for adding products in field, and fetch API
+        const addProduct = (prod) => {
+            let product = {
+                ime: document.getElementById('addText').value
             }
 
-            jsonContent.push(product);
-            document.forms[0].reset();
-            console.log('added', { jsonContent });
-            
-
-
+            fetch('http://192.168.100.100:8081/api/v1/dodadi', {
+                method:'POST',
+                body: JSON.stringify(product),               
+            })
+            .then((response) => {
+                if(response.ok) {
+                    window.location.reload();
+                }       
+            })
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('btn').addEventListener('click', addProduct);
-
-
-        });
     </script>
 </body>
+
 </html>
