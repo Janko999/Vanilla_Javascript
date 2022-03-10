@@ -1,129 +1,107 @@
 <html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>JANE-BLUESHIFT</title>
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLUESHIFT</title>
-</head>
-
-<body>
-    <div>
-
-        <div class="formBox" style="padding: 10px; border: 1px solid #bfbfbf; 
+    <body>  
+        <div>
+            <div class="formBox" style="padding: 10px; border: 1px solid #bfbfbf; 
                     background-color: lightskyblue; 
                     box-shadow: 5px 5px 2px #aaaaaa; 
                     display: inline-block; ">
-
             <div id="nenabaveni">
                 <h3>Products</h3>
-                <ul id="productsList">
-
-                </ul>
             </div>
-            
             <br>
             <div>
                 <input id="addText" type="text" placeholder="Add Product">
-
                 <button id="btn" onclick="addProduct()">ADD PRODUCT</button>
-
             </div>
             <br>
             <div>
                 <div id="nabaveni">
-            
-                </div>
-
+            </div>
         </div>
+        <script>
+            let jsonContent = '';
+            let neNabaveni = document.getElementById('nenabaveni');
+            let nabaveni = document.getElementById('nabaveni');
 
-    </div>
+            fetch('http://skopje.eu.ngrok.io/api/v1/spisok').then((response) => {
+                response.json().then((data) => {
+                    jsonContent = data;
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        //Creating checkbox
+                        let input = document.createElement("input");
+                        input.type = "checkbox";
+                        input.checked = data[i].nabaven;
 
-    <script>
-        let jsonContent = '';
 
-        let neNabaveni = document.getElementById('nenabaveni')
-
-        let nabaveni = document.getElementById('nabaveni');
+                        //Creating paragraph with json elements from API
+                        let div = document.createElement("p");
+                        div.innerText = data[i].ime;
 
 
-
-        fetch('http://192.168.100.100:8081/api/v1/spisok').then((response) => {
-            response.json().then((data) => {
-
-                jsonContent = data;
-
-                for (let i = 0; i <= data.length - 1; i++) {
-                    //Creating checkbox
-                    let input = document.createElement("input");
-                    input.type = "checkbox";
-                    input.checked = data[i].nabaven;
-                   
-                    
-                    //Creating paragraph with json elements from API
-                    let div = document.createElement("p");
-                    
-                    div.innerText = data[i].ime;
-
-                    
-                    //Check if its ordered or not (true or false)
-                    if (data[i].nabaven !== true) {
-                        neNabaveni.appendChild(input);
-                        neNabaveni.append(data[i].ime)
-                    //Getting ID
-                        input.id = data[i].id;
-                        
-                        
-                    } else {
-                        nabaveni.appendChild(input);
-                        nabaveni.append(data[i].ime);
-                        input.id = data[i].id;
-                    }
-
-                    //If its ordered (checked), put the element in "ordered parapraph"
-                    input.addEventListener('change', e => {
-                        if (e.target.checked) {
-                            nabaveni.append(data[i].ime)
-                            nabaveni.append(input);
-                            
+                        //Check if its ordered or not (true or false)
+                        if (data[i].nabaven !== true) {
+                            neNabaveni.appendChild(input);
+                            neNabaveni.append(data[i].ime)
+                            //Getting ID
+                            input.id = data[i].id;
+                        } else {
+                            nabaveni.appendChild(input);
+                            nabaveni.append(data[i].ime);
+                            input.id = data[i].id;
                         }
 
+                        //If there is a check or uncheck action, call the backend API  
+                        input.addEventListener('change', e => {
+                            checkOrUncheckProduct(data[i].id, data[i].ime, e.target.checked);
+                        });
+                    }
 
-                    });
-                    
+                })
+            })
 
+            //Function for adding products in field, and fetch API
+            const addProduct = (prod) => {
+                let product = {
+                    ime: document.getElementById('addText').value
                 }
 
-                // for (let i = 0; i < input.length; i++){
-                //     let newList = document.createElement("li");
-                //     let productList = newList[i];
-
-                //     let newContent = document.createTextNode(productList);
-                //     newList.appendChild(newContent);
-
-                //     let displayContent = document.getElementById("productsList");
-                //     displayContent.appendChild(newList);
-                // }
-            })
-        })
-
-        //Function for adding products in field, and fetch API
-        const addProduct = (prod) => {
-            let product = {
-                ime: document.getElementById('addText').value
+                fetch('http://skopje.eu.ngrok.io/api/v1/dodadi', {
+                    method: 'POST',
+                    body: JSON.stringify(product),
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            window.location.reload();
+                        }
+                    })
             }
 
-            fetch('http://192.168.100.100:8081/api/v1/dodadi', {
-                method:'POST',
-                body: JSON.stringify(product),               
-            })
-            .then((response) => {
-                if(response.ok) {
-                    window.location.reload();
-                }       
-            })
-        }
-    </script>
-</body>
+            function checkOrUncheckProduct(id, name, checked) {
 
+                console.log("Checked", checked);
+                const body = {
+                    id,
+                    ime: name,
+                    nabaven: checked
+                }
+                fetch('http://skopje.eu.ngrok.io/api/v1/cekiraj', {
+                    method: 'POST',
+                    body: JSON.stringify(body),
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            window.location.reload();
+                        }
+                    })
+            }
+        </script>
+        </div>
+    </body>
 </html>
