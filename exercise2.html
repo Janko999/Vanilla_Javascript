@@ -1,0 +1,101 @@
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>JANE-BLUESHIFT</title>
+    </head>
+
+    <body>
+        <div>
+            <span>Pick up time</span>
+            <input type="datetime-local" id="date1" name="date1">
+            <br /> <br />
+            <span>Delivery time</span>
+            <input type="datetime-local" id="date2" name="date2">
+            <br /> <br />
+            <button id="btn" onclick="calculatePriceAndDuration()">Calculate</button>
+            <br /> <br />
+            <span>Duration:</span> <span id="duration"></span>
+            <br /> <br />
+            <span>Price:</span><span id="price"></span>
+        </div>
+        <script>
+            // Function for calculating the price and duration
+            function calculatePriceAndDuration() {
+                let price = 0;
+                const wholeDayPrice = 10*12 + 18*4 + 30*5 + 50*3; // price for driving one whole day
+                const date1 = new Date(document.getElementById("date1").value);
+                const date2 = new Date(document.getElementById("date2").value);
+
+                const hourOfdate1 = date1.getHours();
+                const hoursOfdate2 = date2.getHours();
+                // const minutesOfDate1 = date1.getMinutes();
+                // const minutesOfDate2 = date2.getMinutes();
+
+                // console.log("date2 hours", hoursOfdate2);
+                // console.log("date2 minutes", minutesOfDate2);
+                // console.log("Date1", date1.getTime());
+                // console.log("Date2", date2.getTime());
+
+                if (date2.getTime() < date1.getTime()) {
+                    alert("Date for delivery MUST be bigger than pick up time")
+                }
+                else {
+                    const hoursDifference = (date2.getTime() - date1.getTime()) / 36e5;
+                    if (hoursDifference > 24) {
+                        // console.log("Enter", hoursDifference);
+                        price = (hoursDifference / 24) * wholeDayPrice;
+                        const hoursLeftInTheDay = hoursDifference % 24;
+                        price += calculateTheRestInHours(hoursOfdate2, hoursLeftInTheDay);
+                    } else {
+                        price = calculateTheRestInHours(hoursOfdate2, hoursDifference)
+                    } 
+
+                    const duration = durationOfTheOrder(date2,date1);
+                    document.getElementById("price").innerHTML = `${price} euros`;
+                    document.getElementById("duration").innerHTML = `${duration.days} days, ${duration.hours} hours, ${duration.minutes} minutes, ${duration.seconds} seconds`;
+                }
+
+                    
+
+            }
+
+
+            function calculateTheRestInHours(hoursOfdate2, hoursLeftInTheDay) {
+                // console.log("hoursLeftInte",hoursLeftInTheDay );
+                let price = 0;
+                while (hoursLeftInTheDay > 0) {
+                    // console.log("hoursleft", hoursLeftInTheDay);
+                    // console.log("Hoursofdate2",hoursOfdate2 );
+                    // console.log("price", price);
+                    price += priceOfHour(hoursOfdate2);
+                    hoursLeftInTheDay--;
+                    if (hoursOfdate2 == 0) {
+                        hoursOfdate2 = 23;
+                    } else {
+                        hoursOfdate2--;
+                    }
+                }
+                return price;
+            }
+
+            function priceOfHour(hour) {
+                if (hour >= 6 && hour < 18) {
+                    return 10;
+                }
+                if (hour >= 18 && hour < 22) {
+                    return 18;
+                }
+                if (hour >= 3 && hour < 6) {
+                    return 50;
+                }
+                return 30
+            }
+
+
+
+        </script>
+    </body>
+</html>
